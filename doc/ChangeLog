@@ -1,0 +1,44 @@
+#--------------------------------------------------------------------------
+# File and Version Information:
+#  $Id: ChangeLog 13185 2017-02-23 01:35:30Z dubrovin@SLAC.STANFORD.EDU $
+#
+# Description:
+#  ChangeLog file for package hexanode
+#------------------------------------------------------------------------
+
+Package author: Mikhail S. Dubrovin
+
+Please describe any modifications that you made to the package in the
+reverse time order.
+
+Tag: V01-00-01
+2017-03-28 Mikhail S. Dubrovin
+- move to github in lcls-psana/hexanode
+
+Tag: V00-00-05
+2017-02-22 Mikhail S. Dubrovin
+- rename sort.cpp, update examples and hexanode_ext.pyx to bring them up and running
+
+Tag: V00-00-04
+2017-02-20 Mikhail S. Dubrovin
+- hexanode_ext.pyx, ctest_nda.h - change cython-to-cpp array passing interface
+
+Tag: V00-00-03
+2017-02-19 Mikhail S. Dubrovin
+- pyext/hexanode_ext.pyx - use refernce in stead of pointer type casting in np.array data transfer to C++
+
+Tag: V00-00-02
+2017-02-17 Mikhail S. Dubrovin
+- install external resort64c library, update hexanode_ext.pyx, add test examples
+
+Tag: V00-00-01
+2017-02-15 Mikhail S. Dubrovin
+- add more test modules, before moving to conda
+
+2017-02-10 Mikhail S. Dubrovin
+- just created this template file, this entry is an example of the change log
+  entry
+- keep it brief and easy to read
+- always include author name and date of the change, provide CVS tag when
+  appropriate
+
