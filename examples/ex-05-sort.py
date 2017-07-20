@@ -82,14 +82,15 @@ if __name__ == "__main__" :
         if sorter is not None : del sorter
         sys.exit(0)
 
-    print "Numeration of channels:"
-    print 'Cu1', sorter.cu1 
-    print 'Cu2', sorter.cu2 
-    print 'Cv1', sorter.cv1 
-    print 'Cv2', sorter.cv2 
-    print 'Cw1', sorter.cw1 
-    print 'Cw2', sorter.cw2 
-    print 'Cmcp',sorter.cmcp 
+    Cu1  = sorter.cu1 
+    Cu2  = sorter.cu2 
+    Cv1  = sorter.cv1 
+    Cv2  = sorter.cv2 
+    Cw1  = sorter.cw1 
+    Cw2  = sorter.cw2 
+    Cmcp = sorter.cmcp 
+    print "Numeration of channels - u1:%i  u2:%i  v1:%i  v2:%i  w1:%i  w2:%i  mcp:%i"%\
+          (Cu1, Cu2, Cv1, Cv2, Cw1, Cw2, Cmcp)
 
 #   char error_text[512];
 
@@ -191,78 +192,63 @@ if __name__ == "__main__" :
  
    	sorter.feed_calibration_data(True, w_offset) # for calibration of fv, fw, w_offset and correction tables
 
-#   	if (sorter->scalefactors_calibrator) {
-#   		if (sorter->scalefactors_calibrator->map_is_full_enough()) break;
-#   	}
-#   	
-# 
-#   	int number_of_particles = 0;
-#   	if (command == 1) {  // sort the TDC-Data and reconstruct missing signals
-#   		// sorts/reconstructs the detector signals and apply the sum- and NL-correction.
-#   		number_of_particles = sorter->sort();
-#   		// "number_of_particles" is the number of reconstructed particles
-#   	} else {
-#   		number_of_particles = sorter->run_without_sorting();
-#   	}
-# 
-#   	double u = tdc_ns[Cu1][0] + tdc_ns[Cu2][0] - 2*tdc_ns[Cmcp][0];
-#   	double v = tdc_ns[Cv1][0] + tdc_ns[Cv2][0] - 2*tdc_ns[Cmcp][0];
-#   	double w = tdc_ns[Cw1][0] + tdc_ns[Cw2][0] - 2*tdc_ns[Cmcp][0];
-# 
-#   	if (false) {
-#   	  printf("  Event %5i  number_of_particles: %i", event_number, number_of_particles);
-#   	  for(int i=0; i<number_of_particles; i++) {
-#   	    printf("\n    p:%1i x:%.3f y:%.3f t:%.3f", i, sorter->output_hit_array[i]->x, 
-#                                                               sorter->output_hit_array[i]->y,
-#   	  	                                        sorter->output_hit_array[i]->time);
-#   	  }
-#   	  printf("\n    u:%.3f v:%.3f w:%.3f\n", u, v, w);
-#   	} 
-# 
-# 
-#   	//printf("error	Seaqrch for TODO by end user...");
-#   	//#error	TODO by end user:
+        #print 'map_is_full_enough', hexanode.py_sorter_scalefactors_calibration_map_is_full_enough(sorter)
+        sfco = hexanode.py_scalefactors_calibration_class(sorter)
+
+        # break loop if statistics is enough
+        if sfco :
+            if sfco.map_is_full_enough() : 
+                 print 'sfo.map_is_full_enough(): %s  event number: %06d' % (sfco.map_is_full_enough(), event_number)
+                 break
+
+
+        # Sort the TDC-Data and reconstruct missing signals and apply the sum- and NL-correction.
+        # number_of_particles is the number of reconstructed particles
+   	number_of_particles = sorter.sort() if command == 1 else\
+                              sorter.run_without_sorting()
+
+   	if False :
+   	    print "  Event %5i  number_of_particles: %i" % (event_number, number_of_particles)
+   	    for i in range(number_of_particles) :
+                hco= hexanode.py_hit_class(sorter, i)
+   	        print "    p:%1i x:%.3f y:%.3f t:%.3f met:%d" % (i, hco.x, hco.y, hco.time, hco.method)
+
+            u = tdc_ns[sorter.cu1,0] + tdc_ns[sorter.cu2,0] - 2*tdc_ns[sorter.cmcp,0]
+            v = tdc_ns[sorter.cv1,0] + tdc_ns[sorter.cv2,0] - 2*tdc_ns[sorter.cmcp,0]
+            w = tdc_ns[sorter.cw1,0] + tdc_ns[sorter.cw2,0] - 2*tdc_ns[sorter.cmcp,0]
+
+   	    print "    part1 u:%.3f v:%.3f w:%.3f" % (u, v, w)
+
+#       // TODO by end user..."
+
 #   	// write the results into a new data file.
-#   	// the variable "number_of_particles" contains the number of
-#   	// reconstructed particles.
-#   	// the x and y  (in mm) and TOF (in ns) is stored in the array sorter->output_hit_array:
-#   	// 
-#   	// for the first particle:
-#   	// sorter->output_hit_array[0]->x;
-#   	// sorter->output_hit_array[0]->y;
-#   	// sorter->output_hit_array[0]->time;
-#   	// 
-#   	// for the 2nd particle:
-#   	// sorter->output_hit_array[1]->x;
-#   	// sorter->output_hit_array[1]->y;
-#   	// sorter->output_hit_array[1]->time;
-#   	//
+#   	// the variable "number_of_particles" contains the number of reconstructed particles.
+#   	// the x and y (in mm) and TOF (in ns) is stored in the array sorter->output_hit_array:
+
+#   	// for the i-th particle (i starts from 0):
+#       // hco= hexanode.py_hit_class(sorter, i)
+#       // hco.x, hco.y, hco.time
+
 #   	// for each particle you can also retrieve the information about how the particle
 #   	// was reconstructed (tog et some measure of the confidence):
-#   	// sorter->output_hit_array[0]->method;
-# 
-# 
-#   } // end of the while loop
-# 
-# 
+#   	// hco.method
+
+#   end of the while loop
+
     if command == 2 :
-        print "TBD !!!!!!!!!! calibrating detector... "
+        print "calibrating detector... "
         sorter.do_calibration()
-        print "ok  after do_calibration \n"
-
-#   	if (sorter->scalefactors_calibrator) {
-#   	       printf("Good calibration factors are:\nf_U =%lg\nf_V =%lg\nf_W =%lg\nOffset on layer W=%lg\n",
-#                           2.*sorter->fu, 
-#                           2.*sorter->scalefactors_calibrator->best_fv,
-#                           2.*sorter->scalefactors_calibrator->best_fw, 
-#                           sorter->scalefactors_calibrator->best_w_offset);
-#   	}
+        print "ok - after do_calibration"
+        sfco = hexanode.py_scalefactors_calibration_class(sorter)
+        if sfco :
+            print "Good calibration factors are:\n  f_U =%f\n  f_V =%f\n  f_W =%f\n  Offset on layer W=%f\n"%\
+                  (2*sorter.fu, 2*sfco.best_fv, 2*sfco.best_fw, sfco.best_w_offset)
 
 
-    if (command == 3) : # generate and print correction tables for sum- and position-correction
-        print "TBD !!!!!!!!!!! creating calibration tables...\n"
-#       create_calibration_tables(FNAME_CALIBRATION_TABLE, sorter);
-        print "\nfinished creating calibration tables: %s\n" % FNAME_CALIBRATION_TABLE
+    if command == 3 : # generate and print correction tables for sum- and position-correction
+        print "creating calibration tables..."
+        status = hexanode.py_create_calibration_tables(FNAME_CALIBRATION_TABLE, sorter)
+        print "finished creating calibration tables: %s status %s" % (FNAME_CALIBRATION_TABLE, status)
 
 
     print "consumed time (sec) = %.6f\n" % (time() - t_sec)

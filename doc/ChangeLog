@@ -8,11 +8,11 @@
 
 Package author: Mikhail S. Dubrovin
 
-P lease describe any modifications that you made to the package in the
+Please describe any modifications that you made to the package in the
 reverse time order.
 
-### Tag: V01-00-02
-2017-07-19 Mikhail S. Dubrovin
+Tag: V01-00-02
+2017-07-20 Mikhail S. Dubrovin
 - add python wrapper for C++ library
 - modified:
 	app/ex_sort.cpp

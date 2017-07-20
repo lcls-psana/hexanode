@@ -137,7 +137,7 @@ int main(int argc, char* argv[], char* envp[])
 	        unsigned int event_number = LMF->GetEventNumber();
 		event_counter++;
 
-		//if (event_number%10000 == 0) printf("------- #%i -------\n", event_number);
+		if (event_number%10000 == 0) printf("Event number: %6i\n", event_number);
 		//if (event_counter%10000 == 0) {if (my_kbhit()) break;}
 
                 //==================================
@@ -183,9 +183,12 @@ int main(int argc, char* argv[], char* envp[])
 
 		sorter->feed_calibration_data(true, w_offset); // for calibration of fv, fw, w_offset and correction tables
 		if (sorter->scalefactors_calibrator) {
-			if (sorter->scalefactors_calibrator->map_is_full_enough()) break;
+		        bool status = sorter->scalefactors_calibrator->map_is_full_enough();
+			if (status) {
+                            printf("map_is_full_enough(): %d  event number: %d\n", status, event_number);  
+                            break;
+                        }
 		}
-		
 
 		int number_of_particles = 0;
 		if (command == 1) {  // sort the TDC-Data and reconstruct missing signals
@@ -196,18 +199,21 @@ int main(int argc, char* argv[], char* envp[])
 			number_of_particles = sorter->run_without_sorting();
 		}
 
-		double u = tdc_ns[Cu1][0] + tdc_ns[Cu2][0] - 2*tdc_ns[Cmcp][0];
-		double v = tdc_ns[Cv1][0] + tdc_ns[Cv2][0] - 2*tdc_ns[Cmcp][0];
-		double w = tdc_ns[Cw1][0] + tdc_ns[Cw2][0] - 2*tdc_ns[Cmcp][0];
-
 		if (false) {
 		  printf("  Event %5i  number_of_particles: %i", event_number, number_of_particles);
 		  for(int i=0; i<number_of_particles; i++) {
-		    printf("\n    p:%1i x:%.3f y:%.3f t:%.3f", i, sorter->output_hit_array[i]->x, 
-                                                                  sorter->output_hit_array[i]->y,
-		  	                                        sorter->output_hit_array[i]->time);
+		    printf("\n    p:%1i x:%.3f y:%.3f t:%.3f met:%d", i,
+			   sorter->output_hit_array[i]->x, 
+			   sorter->output_hit_array[i]->y,
+			   sorter->output_hit_array[i]->time,
+			   sorter->output_hit_array[i]->method);
 		  }
-		  printf("\n    u:%.3f v:%.3f w:%.3f\n", u, v, w);
+
+		  double u = tdc_ns[Cu1][0] + tdc_ns[Cu2][0] - 2*tdc_ns[Cmcp][0];
+		  double v = tdc_ns[Cv1][0] + tdc_ns[Cv2][0] - 2*tdc_ns[Cmcp][0];
+		  double w = tdc_ns[Cw1][0] + tdc_ns[Cw2][0] - 2*tdc_ns[Cmcp][0];
+
+		  printf("\n    part1  u:%.3f v:%.3f w:%.3f\n", u, v, w);
 		} 
 
 
@@ -254,7 +260,7 @@ int main(int argc, char* argv[], char* envp[])
 	  std::string fname_calib_tables("calibration_table.txt");
 	  printf("creating calibration tables...\n");
 	  create_calibration_tables(fname_calib_tables.c_str(), sorter);
-	  printf("\nfinished creating calibration tables: %s\n", fname_calib_tables.c_str());
+	  printf("finished creating calibration tables: %s\n", fname_calib_tables.c_str());
 	}
 
         clock_gettime(CLOCK_REALTIME, &stop);

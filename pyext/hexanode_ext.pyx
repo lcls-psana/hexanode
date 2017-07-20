@@ -184,15 +184,13 @@ cdef class py_hit_class:
     """
     cdef hit_class* cptr  # holds a C++ instance
 
-    def __cinit__(self, py_sort_class sorter):
-        print "In py_hit_class.__cinit__"
-        self.cptr = new hit_class(sorter.cptr);
-        if self.cptr == NULL:
-            raise MemoryError('In py_hit_class.__cinit__: Not enough memory.')
+    def __cinit__(self, py_sort_class sorter, int i=0):
+        #print "In py_hit_class.__cinit__ index: %d" % i
+        self.cptr = sorter.cptr.output_hit_array[i]
 
-    def __dealloc__(self):
-        print "In py_hit_class.__dealloc__"
-        del self.cptr
+#    def __dealloc__(self):
+#        print "In py_hit_class.__dealloc__"
+#        del self.cptr
 
     @property
     def x(self) : return self.cptr.x
@@ -235,7 +233,7 @@ cdef class py_scalefactors_calibration_class:
     #cdef scalefactors_calibration_class* cptc  # holds a C++ instance
 
     def __cinit__(self, py_sort_class sorter):
-        print "In py_scalefactors_calibration_class.__cinit__"
+        #print "In py_scalefactors_calibration_class.__cinit__"
         self.cptr = sorter.cptr.scalefactors_calibrator
         #st = self.cptr.clone(self.cptc)
 
@@ -244,9 +242,7 @@ cdef class py_scalefactors_calibration_class:
 #        del self.cptr
 
     @property
-    def best_fv(self) : 
-        #print 'best_fv', self.cptr.best_fv
-        return self.cptr.best_fv
+    def best_fv(self) : return self.cptr.best_fv
 
     @property
     def best_fw(self) : return self.cptr.best_fw
@@ -298,7 +294,7 @@ cdef extern from "hexanode_proxy/resort64c.h":
         #----------------------
 
         sort_class() except +
-        int sort() except + # sorts data, returns the number of reconstructed particles 
+        int32_t sort() except + # sorts data, returns the number of reconstructed particles 
         int32_t run_without_sorting() except +
         bint create_scalefactors_calibrator(bint , double& runtime_u,\
                                             double& runtime_v,\
@@ -456,12 +452,12 @@ cdef class py_sort_class:
 
 
     def sort(self) :
-        print "In py_sort_class.sort"
+        #ok print "In py_sort_class.sort"
         return self.cptr.sort()
 
 
     def run_without_sorting(self) :
-        print "In py_sort_class.run_without_sorting"
+        #ok print "In py_sort_class.run_without_sorting"
         return self.cptr.run_without_sorting()
 
 
@@ -472,17 +468,17 @@ cdef class py_sort_class:
 
 
     def shift_sums(self, int32_t direction, double Sumu_offeset, double Sumv_offeset, double Sumw_offeset=0) :
-        print "In py_sort_class.shift_sums"
+        #print "In py_sort_class.shift_sums"
         self.cptr.shift_sums(direction, Sumu_offeset, Sumv_offeset, Sumw_offeset)
 
 
     def shift_layer_w(self, int32_t direction, double& w_offeset) :
-        print "In py_sort_class.shift_layer_w"
+        #print "In py_sort_class.shift_layer_w"
         self.cptr.shift_layer_w(direction, w_offeset)
 
 
     def shift_position_origin(self, int32_t direction, double& x_pos_offeset, double& y_pos_offeset) :
-        print "In py_sort_class.shift_position_origin"
+        #print "In py_sort_class.shift_position_origin"
         self.cptr.shift_position_origin(direction, x_pos_offeset, y_pos_offeset)
 
 
@@ -492,7 +488,7 @@ cdef class py_sort_class:
 
 
     def feed_calibration_data(self, bint build_map, double w_offset, int32_t number_of_correction_points=0) :
-        print "In py_sort_class.feed_calibration_data"
+        #print "In py_sort_class.feed_calibration_data"
         #return self.cptr.feed_calibration_data(build_map, w_offset, number_of_correction_points)
         return self.cptr.feed_calibration_data(build_map, w_offset)
 
@@ -516,6 +512,8 @@ cdef extern from "hexanode/SortUtils.h":
 
     bint read_calibration_tables(const char* fname, sort_class* sorter)
 
+    bint create_calibration_tables(const char* fname, sort_class* sorter)
+
     bint sorter_scalefactors_calibration_map_is_full_enough(sort_class* sorter)
 
 #------------------------------
@@ -538,6 +536,12 @@ def py_read_config_file(const char* fname, py_sort_class sorter) :
 def py_read_calibration_tables(const char* fname, py_sort_class sorter) :
     print "In py_read_calibration_tables from file %s" % fname
     return read_calibration_tables(fname, sorter.cptr)
+
+
+def py_create_calibration_tables(const char* fname, py_sort_class sorter) :
+    print "In py_create_calibration_tables in file %s" % fname
+    return create_calibration_tables(fname, sorter.cptr)
+
 
 def py_sorter_scalefactors_calibration_map_is_full_enough(py_sort_class sorter) :
     return sorter_scalefactors_calibration_map_is_full_enough(sorter.cptr)
@@ -574,7 +578,7 @@ cdef class py_signal_corrector_class:
     cdef signal_corrector_class* cptr  # holds a C++ instance which we're wrapping
 
     def __cinit__(self):
-        print "XXX In py_signal_corrector_class.__cinit__",\
+        print "In py_signal_corrector_class.__cinit__",\
               " - direct test of methods from hexanode_proxy/resort64c.h in hexanode_ext.class py_signal_corrector_class"
         self.cptr = new signal_corrector_class();
 
@@ -660,17 +664,17 @@ cdef class lmf_io:
     cdef LMF_IO* cptr # holds a C++ instance
 
     def __cinit__(self, int number_of_channels, int number_of_hits):
-        print "XXX In LMF_IO.__cinit__ pars %d, %d" % (number_of_channels, number_of_hits)
+        print "In LMF_IO.__cinit__ pars %d, %d" % (number_of_channels, number_of_hits)
         self.cptr = new LMF_IO(number_of_channels, number_of_hits)
         if self.cptr == NULL:
             raise MemoryError('Not enough memory.')
 
     def __dealloc__(self):
-        print "XXX In LMF_IO.__del__"
+        print "In LMF_IO.__del__"
         del self.cptr
 
     def open_input_lmf(self, const char* fname):
-        print "XXX In LMF_IO.cptr.open_input_lmf, open file %s" % fname
+        print "In LMF_IO.cptr.open_input_lmf, open file %s" % fname
         s = self.cptr.OpenInputLMF(fname)
         #print "file opening status %d" % s
         return s
