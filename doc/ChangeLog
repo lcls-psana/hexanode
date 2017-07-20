@@ -8,8 +8,27 @@
 
 Package author: Mikhail S. Dubrovin
 
-Please describe any modifications that you made to the package in the
+P lease describe any modifications that you made to the package in the
 reverse time order.
+
+### Tag: V01-00-02
+2017-07-19 Mikhail S. Dubrovin
+- add python wrapper for C++ library
+- modified:
+	app/ex_sort.cpp
+	doc/README
+	examples/ex-03-sort-class.py
+	pyext/hexanode_ext.pyx
+- add:
+	app/ex_read_file.cpp
+	app/ex_read_lmf_data.cpp
+	app/lmf2txt.cpp
+	examples/ex-04-methods.py
+	examples/ex-05-sort.py
+	examples/ex-05-sort.py-backup
+	include/LMF_IO.h
+	include/SortUtils.h
+	src/LMF_IO.cpp
 
 Tag: V01-00-01
 2017-03-28 Mikhail S. Dubrovin

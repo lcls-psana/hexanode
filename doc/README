@@ -19,3 +19,60 @@ Detailed description:
 
 More detailed info goes here. Describe main classes/applications built in
 this package. Give few examples of their use.
+
+2017-07-11 Installation of lmf2txt convertor:
+=============================================
+mv lmf2txt.zip lmf2txt/
+cd lmf2txt
+unzip lmf2txt.zip
+produces:
+7 lmf2txt.cpp    6 lmf2txt.vcproj   29 lmf2txt.zip  258 LMF_IO.cpp   18 LMF_IO.h
+
+cp LMF_IO.h hexanode/include/
+cp LMF_IO.cpp hexanode/src/
+cp lmf2txt.cpp hexanode/app/
+
+
+lmf2txt.cpp
+--------------
+< #include "conio.h"
+< #include "LMF_IO.h"
+---
+> //#include "conio.h"
+> #include "hexanode/LMF_IO.h"
+157c157
+< 			while (_kbhit()) c = _getch();
+---
+> 			//while (_kbhit()) c = _getch();
+--------------
+
+
+LMF_IO.cpp
+--------------
+4,5c4,5
+< #include "LMF_IO.h"
+---
+> #include "hexanode/LMF_IO.h"
+--------------
+
+
+
+LMF_IO.h
+emacs LMF_IO.h to replace "^M" by RET
+--------------
+<//#define LINUX
+---
+>#define LINUX
+
+<        #include "string.h"^M   #define _fseeki64 fseeko
+---
+>        #define _fseeki64 fseeko
+>	 #define _ftelli64 ftello
+--------------
+
+Run command:
+------------
+lmf2txt hexanode-example-CO_4.lmf -f
+creates file: hexanode-example-CO_4.lmf.txt
+
+=============================================
