@@ -166,10 +166,7 @@ def ctest_resort():
 
 #------------------------------
 #------------------------------
-#------------------------------
-#------------------------------
-#------------------------------
-#------------------------------
+#--------- hit_class ----------
 #------------------------------
 #------------------------------
 
@@ -206,6 +203,7 @@ cdef class py_hit_class:
 
 #------------------------------
 #------------------------------
+# scalefactors_calibration_class
 #------------------------------
 #------------------------------
 
@@ -256,6 +254,7 @@ cdef class py_scalefactors_calibration_class:
 
 #------------------------------
 #------------------------------
+#--------- sort_class ---------
 #------------------------------
 #------------------------------
 
@@ -290,6 +289,17 @@ cdef extern from "hexanode_proxy/resort64c.h":
         hit_class** output_hit_array  # pointer to the hit array [max_number_of_hits]
  
         scalefactors_calibration_class * scalefactors_calibrator
+
+        bint use_reflection_filter_on_u1, use_reflection_filter_on_u2
+        bint use_reflection_filter_on_v1, use_reflection_filter_on_v2
+        bint use_reflection_filter_on_w1, use_reflection_filter_on_w2
+
+        double  u1_reflection_time_position, u1_reflection_half_width_at_base
+        double  u2_reflection_time_position, u2_reflection_half_width_at_base
+        double  v1_reflection_time_position, v1_reflection_half_width_at_base
+        double  v2_reflection_time_position, v2_reflection_half_width_at_base
+        double  w1_reflection_time_position, w1_reflection_half_width_at_base
+        double  w2_reflection_time_position, w2_reflection_half_width_at_base
 
         #----------------------
 
@@ -403,6 +413,42 @@ cdef class py_sort_class:
     @property
     def dead_time_mcp(self) : return self.cptr.dead_time_mcp
 
+    @property
+    def u1_reflection_time_position(self) : return self.cptr.u1_reflection_time_position
+
+    @property
+    def u2_reflection_time_position(self) : return self.cptr.u2_reflection_time_position
+
+    @property
+    def v1_reflection_time_position(self) : return self.cptr.v1_reflection_time_position
+
+    @property
+    def v2_reflection_time_position(self) : return self.cptr.v2_reflection_time_position
+
+    @property
+    def w1_reflection_time_position(self) : return self.cptr.w1_reflection_time_position
+
+    @property
+    def w2_reflection_time_position(self) : return self.cptr.w2_reflection_time_position
+
+    @property
+    def u1_reflection_half_width_at_base(self) : return self.cptr.u1_reflection_half_width_at_base
+
+    @property
+    def u2_reflection_half_width_at_base(self) : return self.cptr.u2_reflection_half_width_at_base
+
+    @property
+    def v1_reflection_half_width_at_base(self) : return self.cptr.v1_reflection_half_width_at_base
+
+    @property
+    def v2_reflection_half_width_at_base(self) : return self.cptr.v2_reflection_half_width_at_base
+
+    @property
+    def w1_reflection_half_width_at_base(self) : return self.cptr.w1_reflection_half_width_at_base
+
+    @property
+    def w2_reflection_half_width_at_base(self) : return self.cptr.w2_reflection_half_width_at_base
+
 #    @property
 #    def output_hit_array(self) : return self.cptr.output_hit_array
 
@@ -421,6 +467,26 @@ cdef class py_sort_class:
 #       def __set__(self, v): self.cptr.??? = v
 
 #------------------------------
+#------------------------------
+
+    def set_use_reflection_filter_on_u1(self, bint v) : 
+       self.cptr.use_reflection_filter_on_u1 = v
+
+    def set_use_reflection_filter_on_v1(self, bint v) : 
+       self.cptr.use_reflection_filter_on_v1 = v
+
+    def set_use_reflection_filter_on_w1(self, bint v) : 
+       self.cptr.use_reflection_filter_on_w1 = v
+
+    def set_use_reflection_filter_on_u2(self, bint v) : 
+       self.cptr.use_reflection_filter_on_u2 = v
+
+    def set_use_reflection_filter_on_v2(self, bint v) : 
+       self.cptr.use_reflection_filter_on_v2 = v
+
+    def set_use_reflection_filter_on_w2(self, bint v) : 
+       self.cptr.use_reflection_filter_on_w2 = v
+
 #------------------------------
 
     def set_tdc_resolution_ns(self, double v) : 
@@ -502,6 +568,7 @@ cdef class py_sort_class:
 
 #------------------------------
 #------------------------------
+#--------- SortUtils.h --------
 #------------------------------
 #------------------------------
 
@@ -548,22 +615,8 @@ def py_sorter_scalefactors_calibration_map_is_full_enough(py_sort_class sorter) 
 
 #------------------------------
 #------------------------------
+#--- signal_corrector_class ---
 #------------------------------
-#------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #------------------------------
 
 cdef extern from "hexanode_proxy/resort64c.h":
@@ -588,11 +641,7 @@ cdef class py_signal_corrector_class:
 
 #------------------------------
 #------------------------------
-#------------------------------
-#------------------------------
 #--------- LMF_IO -------------
-#------------------------------
-#------------------------------
 #------------------------------
 #------------------------------
 

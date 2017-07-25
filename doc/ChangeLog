@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 Tag: V01-00-02
+2017-07-25 Mikhail S. Dubrovin
+- add ex-06-sort-graph.py - example with graphics for all available parameters
+
+Tag: V01-00-01
 2017-07-20 Mikhail S. Dubrovin
 - add python wrapper for C++ library
 - modified:
@@ -30,7 +34,6 @@ Tag: V01-00-02
 	include/SortUtils.h
 	src/LMF_IO.cpp
 
-Tag: V01-00-01
 2017-03-28 Mikhail S. Dubrovin
 - move to github in lcls-psana/hexanode
 
