@@ -211,6 +211,9 @@ cdef extern from "hexanode_proxy/resort64c.h":
     cdef cppclass scalefactors_calibration_class:
 
         double best_fv, best_fw, best_w_offset
+        int32_t binx, biny
+        double detector_map_resol_FWHM_fill
+        double detector_map_devi_fill
 
         scalefactors_calibration_class() except +
         scalefactors_calibration_class(bint BuildStack, double runtime_u, double runtime_v, double runtime_w, 
@@ -218,7 +221,6 @@ cdef extern from "hexanode_proxy/resort64c.h":
                                        double fu,double fv,double fw) except +
         bint map_is_full_enough() except +
         void feed_calibration_data(double u_ns, double v_ns, double w_ns, double w_ns_minus_woffset) except +
-
 
         bint clone(scalefactors_calibration_class *) except +
 
@@ -247,6 +249,18 @@ cdef class py_scalefactors_calibration_class:
 
     @property
     def best_w_offset(self) : return self.cptr.best_w_offset
+
+    @property
+    def binx(self) : return self.cptr.binx
+
+    @property
+    def biny(self) : return self.cptr.biny
+
+    @property
+    def detector_map_resol_FWHM_fill(self) : return self.cptr.detector_map_resol_FWHM_fill
+
+    @property
+    def detector_map_devi_fill(self) : return self.cptr.detector_map_devi_fill
 
     def map_is_full_enough(self) :
         #print "In py_scalefactors_calibration_class.map_is_full_enough()"
@@ -288,7 +302,7 @@ cdef extern from "hexanode_proxy/resort64c.h":
         #* sum_corrector_U
         hit_class** output_hit_array  # pointer to the hit array [max_number_of_hits]
  
-        scalefactors_calibration_class * scalefactors_calibrator
+        scalefactors_calibration_class* scalefactors_calibrator
 
         bint use_reflection_filter_on_u1, use_reflection_filter_on_u2
         bint use_reflection_filter_on_v1, use_reflection_filter_on_v2

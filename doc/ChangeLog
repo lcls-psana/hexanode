@@ -11,6 +11,11 @@ Package author: Mikhail S. Dubrovin
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V01-00-03
+2017-08-02 Mikhail S. Dubrovin
+- add/update plots in ex-06-sort-graph.py
+- modified: ex-06-sort-graph.py, hexanode_ext.pyx
+
 Tag: V01-00-02
 2017-07-25 Mikhail S. Dubrovin
 - add ex-06-sort-graph.py - example with graphics for all available parameters
