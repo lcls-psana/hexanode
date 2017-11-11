@@ -11,6 +11,15 @@ Package author: Mikhail S. Dubrovin
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V01-00-04
+2017-11-10 Mikhail S. Dubrovin
+- add examples for hexanode data processing
+      ex-07-sort-graph-data.py
+      ex-08-proc-data-save-h5.py
+      ex-09-MPI-test.py
+      ex-10-MPIDataSource-test.py
+      ex-11-MPIDS-save-h5.py
+
 Tag: V01-00-03
 2017-08-02 Mikhail S. Dubrovin
 - add/update plots in ex-06-sort-graph.py
