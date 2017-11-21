@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 #------------------------------
+print "Use command: python hexanode/examples/ex-09-sort-graph-data.py"
+#------------------------------
+
+#if len(sys.argv) < 2 : sys.exit("Please provide a dataset name, e.g. exp=xpptut15:run=390\n")
+#if len(sys.argv) > 2 : sys.exit("too many arguments\n")
+
+#------------------------------
 
 import os
 import sys
@@ -10,124 +17,125 @@ from math import sqrt
 
 from pyimgalgos.GlobalUtils import print_ndarr
 from pyimgalgos.HBins import HBins
-
-from expmon.HexDataIO import HexDataIO
+from expmon.HexDataIO import HexDataIO, do_print
 
 #------------------------------
 
-NUM_CHANNELS=7
-NUM_IONS=16
-FNAME_CALIBRATION_TABLE = "calibration_table_data.txt"
+OSQRT3 = 1./sqrt(3.)
 
-EVSKIP = 0
-EVENTS = 2000 + EVSKIP 
+#------------------------------
 
-DO_PRINT = False # True
-PLOT_PREFIX = '2017-11-06-figs-hexanode/plot'
-#PLOT_PREFIX = 'plot'
-
-PLOT_NHITS         = True  # False # True  # 
-PLOT_TIME_CH       = True  # False # True  # 
-PLOT_UVW           = True  # False # True  # 
-PLOT_TIME_SUMS     = True  # False # True  # 
-PLOT_CORRELATIONS  = True  # False # True  # 
-PLOT_XY_COMPONENTS = True  # False # True  #
-PLOT_XY_2D         = True  # False # True  #
-PLOT_XY_RESOLUTION = True  # False # True  #
-PLOT_MISC          = True  # False # True  #
-PLOT_REFLECTIONS   = True  # False # True  #
-PLOT_PHYSICS       = True  # False # True  #
+def usage():
+    return 'Use command: python hexanode/examples/ex-09-sort-graph-data.py'
 
 #------------------------------
 
 class Store :
-    """Store of shared parameters.
+    """ Store of shared parameters.
     """
+
+    def set_parameters(self, **kwargs) :
+        self.PLOT_NHITS         = kwargs.get('PLOT_NHITS'        , True)
+        self.PLOT_TIME_CH       = kwargs.get('PLOT_TIME_CH'      , True)
+        self.PLOT_UVW           = kwargs.get('PLOT_UVW'          , True)
+        self.PLOT_TIME_SUMS     = kwargs.get('PLOT_TIME_SUMS'    , True)
+        self.PLOT_CORRELATIONS  = kwargs.get('PLOT_CORRELATIONS' , True)
+        self.PLOT_XY_COMPONENTS = kwargs.get('PLOT_XY_COMPONENTS', True)
+        self.PLOT_XY_2D         = kwargs.get('PLOT_XY_2D'        , True)
+        self.PLOT_XY_RESOLUTION = kwargs.get('PLOT_XY_RESOLUTION', True)
+        self.PLOT_MISC          = kwargs.get('PLOT_MISC'         , True)
+        self.PLOT_REFLECTIONS   = kwargs.get('PLOT_REFLECTIONS'  , True)
+        self.PLOT_PHYSICS       = kwargs.get('PLOT_PHYSICS'      , True)
+
+
     def __init__(self) :
 
-         if PLOT_TIME_CH :
-             self.lst_u1 = []
-             self.lst_u2 = []
-             self.lst_v1 = []
-             self.lst_v2 = []
-             self.lst_w1 = []
-             self.lst_w2 = []
-             self.lst_mcp= []
-             
-         if PLOT_NHITS :
-             self.lst_nhits_u1 = []
-             self.lst_nhits_u2 = []
-             self.lst_nhits_v1 = []
-             self.lst_nhits_v2 = []
-             self.lst_nhits_w1 = []
-             self.lst_nhits_w2 = []
-             self.lst_nhits_mcp= []
+        # set default parameters
+        self.set_parameters()
 
-         if PLOT_UVW or PLOT_CORRELATIONS :
-             self.lst_u_ns = []
-             self.lst_v_ns = []
-             self.lst_w_ns = []
-             self.lst_u = []
-             self.lst_v = []
-             self.lst_w = []
-         
-         if PLOT_TIME_SUMS or PLOT_CORRELATIONS :
-             self.lst_time_sum_u = []
-             self.lst_time_sum_v = []
-             self.lst_time_sum_w = []
-             
-             self.lst_time_sum_u_corr = []
-             self.lst_time_sum_v_corr = []
-             self.lst_time_sum_w_corr = []
+        if self.PLOT_TIME_CH :
+            self.lst_u1 = []
+            self.lst_u2 = []
+            self.lst_v1 = []
+            self.lst_v2 = []
+            self.lst_w1 = []
+            self.lst_w2 = []
+            self.lst_mcp= []
+            
+        if self.PLOT_NHITS :
+            self.lst_nhits_u1 = []
+            self.lst_nhits_u2 = []
+            self.lst_nhits_v1 = []
+            self.lst_nhits_v2 = []
+            self.lst_nhits_w1 = []
+            self.lst_nhits_w2 = []
+            self.lst_nhits_mcp= []
 
-         if PLOT_XY_COMPONENTS :
-             self.lst_Xuv = []
-             self.lst_Xuw = []
-             self.lst_Xvw = []
-             self.lst_Yuv = []
-             self.lst_Yuw = []
-             self.lst_Yvw = []
+        if self.PLOT_UVW or self.PLOT_CORRELATIONS :
+            self.lst_u_ns = []
+            self.lst_v_ns = []
+            self.lst_w_ns = []
+            self.lst_u = []
+            self.lst_v = []
+            self.lst_w = []
+        
+        if self.PLOT_TIME_SUMS or self.PLOT_CORRELATIONS :
+            self.lst_time_sum_u = []
+            self.lst_time_sum_v = []
+            self.lst_time_sum_w = []
+            
+            self.lst_time_sum_u_corr = []
+            self.lst_time_sum_v_corr = []
+            self.lst_time_sum_w_corr = []
 
-         if PLOT_MISC :
-             self.lst_Deviation = []
-             self.lst_consist_indicator = []
-             self.lst_rec_method = []
+        if self.PLOT_XY_COMPONENTS :
+            self.lst_Xuv = []
+            self.lst_Xuw = []
+            self.lst_Xvw = []
+            self.lst_Yuv = []
+            self.lst_Yuw = []
+            self.lst_Yvw = []
 
-         if PLOT_XY_RESOLUTION :
-             self.lst_binx = []
-             self.lst_biny = []
-             self.lst_resol_fwhm = []
+        if self.PLOT_MISC :
+            self.lst_Deviation = []
+            self.lst_consist_indicator = []
+            self.lst_rec_method = []
 
-         if PLOT_REFLECTIONS :
-             self.lst_refl_u1 = []
-             self.lst_refl_u2 = []
-             self.lst_refl_v1 = []
-             self.lst_refl_v2 = []
-             self.lst_refl_w1 = []
-             self.lst_refl_w2 = []
+        if self.PLOT_XY_RESOLUTION :
+            self.lst_binx = []
+            self.lst_biny = []
+            self.lst_resol_fwhm = []
 
-         if PLOT_XY_2D :
-             # images 
-             nbins = 360
-             self.img_x_bins = HBins((-45., 45.), nbins, vtype=np.float32)
-             self.img_y_bins = HBins((-45., 45.), nbins, vtype=np.float32)
-             self.img_xy_uv = np.zeros((nbins, nbins), dtype=np.float32)
-             self.img_xy_uw = np.zeros((nbins, nbins), dtype=np.float32)
-             self.img_xy_vw = np.zeros((nbins, nbins), dtype=np.float32)
-             self.img_xy_1  = np.zeros((nbins, nbins), dtype=np.float32)
-             self.img_xy_2  = np.zeros((nbins, nbins), dtype=np.float32)
+        if self.PLOT_REFLECTIONS :
+            self.lst_refl_u1 = []
+            self.lst_refl_u2 = []
+            self.lst_refl_v1 = []
+            self.lst_refl_v2 = []
+            self.lst_refl_w1 = []
+            self.lst_refl_w2 = []
 
-         if PLOT_PHYSICS :
-             t_ns_nbins = 300
-             self.t_ns_bins = HBins((0., 6000.), t_ns_nbins, vtype=np.float32)
-             self.t1_vs_t0 = np.zeros((t_ns_nbins, t_ns_nbins), dtype=np.float32)
+        if self.PLOT_XY_2D :
+            # images 
+            nbins = 360
+            self.img_x_bins = HBins((-45., 45.), nbins, vtype=np.float32)
+            self.img_y_bins = HBins((-45., 45.), nbins, vtype=np.float32)
+            self.img_xy_uv = np.zeros((nbins, nbins), dtype=np.float32)
+            self.img_xy_uw = np.zeros((nbins, nbins), dtype=np.float32)
+            self.img_xy_vw = np.zeros((nbins, nbins), dtype=np.float32)
+            self.img_xy_1  = np.zeros((nbins, nbins), dtype=np.float32)
+            self.img_xy_2  = np.zeros((nbins, nbins), dtype=np.float32)
 
-             x_mm_nbins = 200
-             y_mm_nbins = 200
-             self.x_mm_bins = HBins((-50., 50.), x_mm_nbins, vtype=np.float32)
-             self.y_mm_bins = HBins((-50., 50.), y_mm_nbins, vtype=np.float32)
-             self.x_vs_t0 = np.zeros((x_mm_nbins, t_ns_nbins), dtype=np.float32)
-             self.y_vs_t0 = np.zeros((y_mm_nbins, t_ns_nbins), dtype=np.float32)
+        if self.PLOT_PHYSICS :
+            t_ns_nbins = 300
+            self.t_ns_bins = HBins((0., 6000.), t_ns_nbins, vtype=np.float32)
+            self.t1_vs_t0 = np.zeros((t_ns_nbins, t_ns_nbins), dtype=np.float32)
+
+            x_mm_nbins = 200
+            y_mm_nbins = 200
+            self.x_mm_bins = HBins((-50., 50.), x_mm_nbins, vtype=np.float32)
+            self.y_mm_bins = HBins((-50., 50.), y_mm_nbins, vtype=np.float32)
+            self.x_vs_t0 = np.zeros((x_mm_nbins, t_ns_nbins), dtype=np.float32)
+            self.y_vs_t0 = np.zeros((y_mm_nbins, t_ns_nbins), dtype=np.float32)
 
 #------------------------------
 
@@ -135,8 +143,8 @@ sp = Store()
 
 #------------------------------
 
-def create_output_directory() :
-    dirname = os.path.dirname(PLOT_PREFIX)
+def create_output_directory(prefix) :
+    dirname = os.path.dirname(prefix)
     print 'Output directory: "%s"' % dirname
     if dirname in ('', './', None) : return
     from CalibManager.GlobalUtils import create_directory # , create_path, 
@@ -202,7 +210,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     sp.hwin_x0y0 = hwin_x0y0
     #---------
     #---------
-    if PLOT_NHITS :
+    if sp.PLOT_NHITS :
     #---------
         nbins = 20
         limits = (-0.5,19.5)
@@ -237,7 +245,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
             fnm='nhits_mcp.png')
 
     #---------
-    if PLOT_TIME_CH :
+    if sp.PLOT_TIME_CH :
     #---------
         nbins = 200
         limits = (0,6000)
@@ -275,7 +283,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
             fnm='time_mcp_ns.png')
 
     #---------
-    if PLOT_TIME_SUMS :
+    if sp.PLOT_TIME_SUMS :
     #---------
         #nbins = 200
         #limits = (20,120)
@@ -299,7 +307,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     #---------
 
     #---------
-    if PLOT_TIME_SUMS :
+    if sp.PLOT_TIME_SUMS :
     #---------
         nbins = 160
         limits = (-80,80)
@@ -318,7 +326,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     #---------
 
     #---------
-    if PLOT_UVW :
+    if sp.PLOT_UVW :
     #---------
         nbins = 200
         limits = (-50,50)
@@ -337,7 +345,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     #---------
 
     #---------
-    if PLOT_UVW :
+    if sp.PLOT_UVW :
     #---------
         nbins = 200
         limits = (-100,100)
@@ -356,7 +364,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     #---------
 
     #---------
-    if PLOT_CORRELATIONS :
+    if sp.PLOT_CORRELATIONS :
     #---------
          #print_ndarr(sp.lst_time_sum_u, 'time_sum_u')
          #print_ndarr(sp.lst_u_ns,      'lst_u_ns ')
@@ -364,15 +372,15 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
          #ylimits=(20,120)
          ylimits=(50,180)
 
-         plot_graph(sp.lst_u_ns, sp.lst_time_sum_u, figsize=(8,7), pfmt='b. ', lw=2, xlimits=xlimits, ylimits=ylimits,\
+         plot_graph(sp.lst_u_ns, sp.lst_time_sum_u, figsize=(8,7), pfmt='b, ', lw=1, xlimits=xlimits, ylimits=ylimits,\
             title='t sum vs. U', xlabel='U (ns)', ylabel='t sum U (ns)',\
             fnm='t_sum_vs_u_ns.png')
 
-         plot_graph(sp.lst_v_ns, sp.lst_time_sum_v, figsize=(8,7), pfmt='b. ', lw=2, xlimits=xlimits, ylimits=ylimits,\
+         plot_graph(sp.lst_v_ns, sp.lst_time_sum_v, figsize=(8,7), pfmt='b, ', lw=1, xlimits=xlimits, ylimits=ylimits,\
             title='t sum vs. V', xlabel='V (ns)', ylabel='t sum V (ns)',\
             fnm='t_sum_vs_v_ns.png')
 
-         plot_graph(sp.lst_w_ns, sp.lst_time_sum_w, figsize=(8,7), pfmt='b. ', lw=2, xlimits=xlimits, ylimits=ylimits,\
+         plot_graph(sp.lst_w_ns, sp.lst_time_sum_w, figsize=(8,7), pfmt='b, ', lw=1, xlimits=xlimits, ylimits=ylimits,\
             title='t sum vs. W', xlabel='W (ns)', ylabel='t sum W (ns)',\
             fnm='t_sum_vs_w_ns.png')
 
@@ -380,20 +388,20 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
          xlimits=(-100,100)
          ylimits=(-80,20)
          #---------
-         plot_graph(sp.lst_u_ns, sp.lst_time_sum_u_corr, figsize=(8,7), pfmt='b. ', lw=2, xlimits=xlimits, ylimits=ylimits,\
+         plot_graph(sp.lst_u_ns, sp.lst_time_sum_u_corr, figsize=(8,7), pfmt='b, ', lw=1, xlimits=xlimits, ylimits=ylimits,\
             title='t sum corrected vs. U', xlabel='U (ns)', ylabel='t sum corrected U (ns)',\
             fnm='t_sum_corr_vs_u_ns.png')
 
-         plot_graph(sp.lst_v_ns, sp.lst_time_sum_v_corr, figsize=(8,7), pfmt='b. ', lw=2, xlimits=xlimits, ylimits=ylimits,\
+         plot_graph(sp.lst_v_ns, sp.lst_time_sum_v_corr, figsize=(8,7), pfmt='b, ', lw=1, xlimits=xlimits, ylimits=ylimits,\
             title='t sum_corrected vs. V', xlabel='V (ns)', ylabel='t sum corrected V (ns)',\
             fnm='t_sum_corr_vs_v_ns.png')
 
-         plot_graph(sp.lst_w_ns, sp.lst_time_sum_w_corr, figsize=(8,7), pfmt='b. ', lw=2, xlimits=xlimits, ylimits=ylimits,\
+         plot_graph(sp.lst_w_ns, sp.lst_time_sum_w_corr, figsize=(8,7), pfmt='b, ', lw=1, xlimits=xlimits, ylimits=ylimits,\
             title='t sum_corrected vs. W', xlabel='W (ns)', ylabel='t sum corrected W (ns)',\
             fnm='t_sum_corr_vs_w_ns.png')
 
     #---------
-    if PLOT_XY_COMPONENTS :
+    if sp.PLOT_XY_COMPONENTS :
     #---------
         nbins = 200
         limits = (-50,50)
@@ -424,7 +432,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     #---------
 
     #---------
-    if PLOT_REFLECTIONS :
+    if sp.PLOT_REFLECTIONS :
     #---------
         #nbins = 150
         #limits = (-100, 5900)
@@ -456,7 +464,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
             fnm='refl_w2_ns.png')
 
     #---------
-    if PLOT_MISC :
+    if sp.PLOT_MISC :
     #---------
         h1d(np.array(sp.lst_Deviation), bins=160, amp_range=(0,40), log=True,\
             title ='Deviation', xlabel='Deviation (mm)', ylabel='Events',\
@@ -472,7 +480,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     #---------
 
     #---------
-    if PLOT_XY_2D :
+    if sp.PLOT_XY_2D :
     #---------
         amp_limits = (0,5)
         imrange=(sp.img_x_bins.vmin(), sp.img_x_bins.vmax(), sp.img_y_bins.vmax(), sp.img_y_bins.vmin())
@@ -484,7 +492,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     #---------
 
     #---------
-    if PLOT_PHYSICS :
+    if sp.PLOT_PHYSICS :
     #---------
         amp_limits = (0,5)
         imrange=(sp.t_ns_bins.vmin(), sp.t_ns_bins.vmax(), sp.t_ns_bins.vmin(), sp.t_ns_bins.vmax())
@@ -497,7 +505,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
         plot_image(sp.y_vs_t0,  amp_range=amp_limits, img_range=imrange, fnm='y_vs_t0.png',  title='y vs t0', xlabel='t0 (ns)', ylabel='y (mm)', titwin='y vs t0', origin='lower')
 
     #---------
-    if PLOT_XY_RESOLUTION :
+    if sp.PLOT_XY_RESOLUTION :
     #---------
         npa_binx = np.array(sp.lst_binx)
         npa_biny = np.array(sp.lst_biny)
@@ -517,20 +525,27 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
 
 #------------------------------
 
-def py_sort() :
-    print "syntax: ex-07-sort-graph-data.py <dataset>\n"\
-          "        This dataset will be sorted and\n"\
-          "        a new file will be written.\n\n"
- 
-    if len(sys.argv) < 2 :
-        print "Please provide a dataset name, e.g. exp=xpptut15:run=390\n"
-        sys.exit(0)
+def py_sort(**kwargs) :
 
-    if len(sys.argv) > 2 :
-        print "too many arguments\n"
-        sys.exit(0)
-             
-    tdc_ns = np.zeros((NUM_CHANNELS, NUM_IONS), dtype=np.float64)
+    print usage()
+
+    SRCCHS       = kwargs.get('srcchs', {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
+    DSNAME       = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
+    EVSKIP       = kwargs.get('evskip', 0)
+    EVENTS       = kwargs.get('events', 300000) + EVSKIP
+    OFPREFIX     = kwargs.get('ofprefix','./figs-hexanode/plot')
+    NUM_CHANNELS = kwargs.get('numchs', 7)
+    NUM_HITS     = kwargs.get('numhits', 16)
+    CALIBTAB     = kwargs.get('calibtab', 'calibration_table_data.txt')
+    PLOT_HIS     = kwargs.get('plot_his', True)
+    VERBOSE      = kwargs.get('verbose', False)
+
+    print 'Input parameters:'
+    for k,v in kwargs.iteritems() : print '%20s : %s' % (k,str(v))
+
+    sp.set_parameters(**kwargs)
+
+    tdc_ns = np.zeros((NUM_CHANNELS, NUM_HITS), dtype=np.float64)
     number_of_hits = np.zeros((NUM_CHANNELS,), dtype=np.int32)
 
     command = -1;
@@ -558,7 +573,7 @@ def py_sort() :
     print 'use_pos_correction', sorter.use_pos_correction
     if sorter is not None :
         if sorter.use_sum_correction or sorter.use_pos_correction :
-            status = hexanode.py_read_calibration_tables(FNAME_CALIBRATION_TABLE, sorter)
+            status = hexanode.py_read_calibration_tables(CALIBTAB, sorter)
 
     if command == -1 :
    	print "no config file was read. Nothing to do."
@@ -579,27 +594,28 @@ def py_sort() :
     incr_of_consistence = (  1,   2,   4,   8,  16,  32)
     inds_incr = zip(inds_of_channels, incr_of_consistence)
     
-    DS_NAME = sys.argv[1]
-    #LMF = hexanode.lmf_io(NUM_CHANNELS, NUM_IONS)
-
-    DIO = HexDataIO(dic_src_channels={'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
-    DIO.open_input_dataset(DS_NAME, pbits=0) # pbits=1022
+    DIO = HexDataIO(srcchs=SRCCHS, numchs=NUM_CHANNELS, numhits=NUM_HITS)
 
     #=====================
-    #DIO.open_input_h5file('./xpptut15-r390-e200k-nhits-tdcns.h5')
+    if '.h5' in DSNAME : DIO.open_input_h5file(DSNAME)
+    else :
+        DIO.open_input_dataset(DSNAME, pbits=0)
+
+        DIO.set_wf_hit_finder_parameters(**kwargs)
+        DIO.print_wf_hit_finder_parameters()
     #=====================
 
-    print 'DIO starttime: : %s' % DIO.start_time()
-    print 'DIO stoptime   : %s' % DIO.stop_time()
-    tdc_res_ns = DIO.tdc_resolution()
-    print 'DIO tdc_resolution : %.3f' % tdc_res_ns
+    print 'DIO experiment : %s' % DIO.experiment()
+    print 'DIO run        : %s' % DIO.run()
+    print 'DIO start time : %s' % DIO.start_time()
+    print 'DIO stop time  : %s' % DIO.stop_time()
+    print 'DIO tdc_resolution : %.3f' % DIO.tdc_resolution()
 
-#   // initialization of the sorter:
     print "init sorter... "
 
     #sorter.set_tdc_resolution_ns(0.025)
-    sorter.set_tdc_resolution_ns(tdc_res_ns)
-    sorter.set_tdc_array_row_length(NUM_IONS)
+    sorter.set_tdc_resolution_ns(DIO.tdc_resolution())
+    sorter.set_tdc_array_row_length(NUM_HITS)
     sorter.set_count(number_of_hits)
     sorter.set_tdc_pointer(tdc_ns)
 
@@ -625,38 +641,24 @@ def py_sort() :
 
     print "ok for sorter initialization\n"
 
-    print "DIO.tdc_resolution [ns] %.3f\n" %DIO.tdc_resolution()
-
-#   while (my_kbhit()); // empty keyboard buffer
-
-    osqrt3 = 1./sqrt(3.)
-
-    create_output_directory()
-
-    #####################   
-    #sys.exit('TEST EXIT')
-    #####################   
+    create_output_directory(OFPREFIX)
 
     print "reading event data... \n"
 
-    event_number = 0
+    evnum = 0
     t_sec = time()
     t1_sec = time()
     while DIO.read_next_event() :
 
         #number_of_channels = DIO.get_number_of_channels()
-        event_number = DIO.get_event_number()
+        evnum = DIO.get_event_number()
 
-        if event_number < EVSKIP : continue
-        if event_number > EVENTS : break
+        if evnum < EVSKIP : continue
+        if evnum > EVENTS : break
 
-        #print 'Event number: %06d' % event_number
-	if event_number<5\
-	or (event_number<50 and (not event_number%10))\
-	or (event_number<500 and (not event_number%100))\
-	or not event_number%1000 :
+        if do_print(evnum) :
             t1 = time()
-            print 'Event: %06d, dt(sec): %.3f' % (event_number, t1 - t1_sec)
+            print 'Event: %06d, dt(sec): %.3f' % (evnum, t1 - t1_sec)
             t1_sec = t1
 
 #   	//if (event_counter%10000 == 0) {if (my_kbhit()) break;}
@@ -668,32 +670,27 @@ def py_sort() :
 
         #nhits = np.zeros((NUMBER_OF_CHANNELS,), dtype=np.int32)
         DIO.get_number_of_hits_array(number_of_hits)
-        if DIO.error_flag :
-            error_text = DIO.get_error_text(DIO.error_flag)
-            print "DIO Error %d: %s" % (DIO.error_flag, error_text)
+        if DIO.error_flag() :
+            error_text = DIO.get_error_text(DIO.error_flag())
+            print "DIO Error %d: %s" % (DIO.error_flag(), error_text)
             sys.exit(0)
-        if DO_PRINT : print '   number_of_hits_array', number_of_hits[:8]
+        if VERBOSE : print '   number_of_hits_array', number_of_hits[:8]
 
         DIO.get_tdc_data_array(tdc_ns)
 
-        if DIO.error_flag :
-            error_text = DIO.get_error_text(DIO.error_flag)
-            print "DIO Error %d: %s" % (DIO.error_flag, error_text)
+        if DIO.error_flag() :
+            error_text = DIO.get_error_text(DIO.error_flag())
+            print "DIO Error %d: %s" % (DIO.error_flag(), error_text)
             sys.exit(0)
 
-        if DO_PRINT : print '   TDC data:\n', tdc_ns[0:8,0:5]
-
-        #####################   
-        #if event_number < EVENTS : continue
-        #sys.exit('TEST EXIT')
-        #####################
+        if VERBOSE : print '   TDC data:\n', tdc_ns[0:8,0:5]
 
 #   	// apply conversion to ns
         if False : # DIO returns tdc_ns already in [ns]
             tdc_ns *= DIO.tdc_resolution()
 
 #       //==================================
-        if PLOT_NHITS :
+        if sp.PLOT_NHITS :
             sp.lst_nhits_u1. append(number_of_hits[Cu1])
             sp.lst_nhits_u2 .append(number_of_hits[Cu2])
             sp.lst_nhits_v1 .append(number_of_hits[Cv1])
@@ -702,7 +699,7 @@ def py_sort() :
             sp.lst_nhits_w2 .append(number_of_hits[Cw2])
             sp.lst_nhits_mcp.append(number_of_hits[Cmcp])
 
-        if PLOT_TIME_CH :
+        if sp.PLOT_TIME_CH :
             sp.lst_u1 .append(tdc_ns[Cu1,0])
             sp.lst_u2 .append(tdc_ns[Cu2,0])
             sp.lst_v1 .append(tdc_ns[Cv1,0])
@@ -711,8 +708,7 @@ def py_sort() :
             sp.lst_w2 .append(tdc_ns[Cw2,0])
             sp.lst_mcp.append(tdc_ns[Cmcp,0])
 
-
-        if PLOT_REFLECTIONS :
+        if sp.PLOT_REFLECTIONS :
             if number_of_hits[Cu2]>1 : sp.lst_refl_u1.append(tdc_ns[Cu2,1] - tdc_ns[Cu1,0])
             if number_of_hits[Cu1]>1 : sp.lst_refl_u2.append(tdc_ns[Cu1,1] - tdc_ns[Cu2,0])
             if number_of_hits[Cv2]>1 : sp.lst_refl_v1.append(tdc_ns[Cv2,1] - tdc_ns[Cv1,0])
@@ -735,9 +731,9 @@ def py_sort() :
         Xuv = u
         Xuw = u
         Xvw = v + w
-        Yuv = (u - 2*v)*osqrt3
-        Yuw = (2*w - u)*osqrt3
-        Yvw = (w - v)*osqrt3
+        Yuv = (u - 2*v)*OSQRT3
+        Yuw = (2*w - u)*OSQRT3
+        Yvw = (w - v)*OSQRT3
 
         dX = Xuv - Xvw
         dY = Yuv - Yvw
@@ -769,10 +765,10 @@ def py_sort() :
         # break loop if statistics is enough
         if sfco :
             if sfco.map_is_full_enough() : 
-                 print 'sfo.map_is_full_enough(): %s  event number: %06d' % (sfco.map_is_full_enough(), event_number)
+                 print 'sfo.map_is_full_enough(): %s  event number: %06d' % (sfco.map_is_full_enough(), evnum)
                  break
 
-        if PLOT_XY_RESOLUTION :
+        if sp.PLOT_XY_RESOLUTION :
             #print "    binx: %d  biny: %d  resolution(FWHM): %.6f" % (sfco.binx, sfco.biny, sfco.detector_map_resol_FWHM_fill)
             if sfco.binx>=0 and sfco.biny>=0 :
                 sp.lst_binx.append(sfco.binx)
@@ -786,7 +782,7 @@ def py_sort() :
                               sorter.run_without_sorting()
 
    	if False :
-   	    print "  Event %5i  number_of_particles: %i" % (event_number, number_of_particles)
+   	    print "  Event %5i  number_of_particles: %i" % (evnum, number_of_particles)
    	    for i in range(number_of_particles) :
                 hco= hexanode.py_hit_class(sorter, i)
    	        print "    p:%1i x:%.3f y:%.3f t:%.3f met:%d" % (i, hco.x, hco.y, hco.time, hco.method)
@@ -800,7 +796,7 @@ def py_sort() :
 
         hco= hexanode.py_hit_class(sorter, 0)
 
-        if PLOT_UVW or PLOT_CORRELATIONS :
+        if sp.PLOT_UVW or sp.PLOT_CORRELATIONS :
             sp.lst_u_ns.append(u_ns)
             sp.lst_v_ns.append(v_ns)
             sp.lst_w_ns.append(w_ns)
@@ -808,7 +804,7 @@ def py_sort() :
             sp.lst_v.append(v)
             sp.lst_w.append(w)
 
-        if PLOT_TIME_SUMS or PLOT_CORRELATIONS :
+        if sp.PLOT_TIME_SUMS or sp.PLOT_CORRELATIONS :
             sp.lst_time_sum_u.append(time_sum_u)
             sp.lst_time_sum_v.append(time_sum_v)
             sp.lst_time_sum_w.append(time_sum_w)
@@ -817,7 +813,7 @@ def py_sort() :
             sp.lst_time_sum_v_corr.append(time_sum_v_corr)
             sp.lst_time_sum_w_corr.append(time_sum_w_corr)
 
-        if PLOT_XY_COMPONENTS :
+        if sp.PLOT_XY_COMPONENTS :
             sp.lst_Xuv.append(Xuv)
             sp.lst_Xuw.append(Xuw)
             sp.lst_Xvw.append(Xvw)
@@ -826,7 +822,7 @@ def py_sort() :
             sp.lst_Yuw.append(Yuw)
             sp.lst_Yvw.append(Yvw)
 
-        if PLOT_MISC :
+        if sp.PLOT_MISC :
             sp.lst_Deviation.append(Deviation)
             
             # fill Consistence Indicator
@@ -838,8 +834,7 @@ def py_sort() :
             sp.lst_rec_method.append(hco.method)
             #print 'reconstruction method %d' % hco.method
 
-
-        if PLOT_XY_2D :
+        if sp.PLOT_XY_2D :
             # fill 2-d images
             x1, y1 = hco.x, hco.y
 
@@ -857,7 +852,7 @@ def py_sort() :
             sp.img_xy_uw[iyuw, ixuw] += 1 
             sp.img_xy_vw[iyvw, ixvw] += 1 
 
-        if PLOT_PHYSICS :
+        if sp.PLOT_PHYSICS :
           if number_of_hits[Cmcp]>1 :
             t0, t1 = tdc_ns[Cmcp,:2]
             it0, it1 = sp.t_ns_bins.bin_indexes((t0, t1))
@@ -894,23 +889,70 @@ def py_sort() :
 
     if command == 3 : # generate and print correction tables for sum- and position-correction
         print "creating calibration tables..."
-        status = hexanode.py_create_calibration_tables(FNAME_CALIBRATION_TABLE, sorter)
-        print "finished creating calibration tables: %s status %s" % (FNAME_CALIBRATION_TABLE, status)
+        status = hexanode.py_create_calibration_tables(CALIBTAB, sorter)
+        print "finished creating calibration tables: %s status %s" % (CALIBTAB, status)
 
 
     print "consumed time (sec) = %.6f\n" % (time() - t_sec)
 
     if sorter is not None : del sorter
 
+    if PLOT_HIS :
+        plot_histograms(prefix=OFPREFIX, do_save=True, hwin_x0y0=(0,0))
+        show()
+
 #------------------------------
 
 if __name__ == "__main__" :
-    tname = sys.argv[1] if len(sys.argv) > 1 else '1'
-    print 50*'_', '\nTest %s:' % tname
 
-    py_sort()
-    plot_histograms(prefix=PLOT_PREFIX, do_save=True, hwin_x0y0=(0,0))
-    show()
-    sys.exit(0)
+    print 50*'_'
+
+              #'dsname'   : 'exp=xpptut15:run=390:smd',
+              #'dsname'   : './xpptut15-r0390-e001200-single-node.h5',
+              #'dsname'   : './xpptut15-r0390-e001200-n02-mpi.h5',
+              #'dsname'   : './xpptut15-r0390-e300000-n08-mpi.h5',
+              #'dsname'   : './xpptut15-r0390-e001200-single-node.h5',
+
+    kwargs = {'srcchs'   : {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)},
+              'numchs'   : 7,
+              'numhits'  : 16,
+              'dsname'   : 'exp=xpptut15:run=390:smd',
+              'evskip'   : 0,
+              'events'   : 1200,
+              'ofprefix' : './figs-hexanode/plot',
+              'calibtab' : 'calibration_table_data.txt',
+              'plot_his' : True,
+              'verbose'  : False,
+             }
+
+    cfdpars= {'cfd_base'       :  0.,
+              'cfd_thr'        : -0.05,
+              'cfd_cfr'        :  0.9,
+              'cfd_deadtime'   :  5.0,
+              'cfd_leadingedge':  True,
+              'cfd_ioffsetbeg' :  0,
+              'cfd_ioffsetend' :  1000,
+             }
+
+    plotpars={'PLOT_NHITS'         : True,
+              'PLOT_TIME_CH'       : True,
+              'PLOT_UVW'           : True,
+              'PLOT_TIME_SUMS'     : True,
+              'PLOT_CORRELATIONS'  : True,
+              'PLOT_XY_COMPONENTS' : True,
+              'PLOT_XY_2D'         : True,
+              'PLOT_XY_RESOLUTION' : True,
+              'PLOT_MISC'          : True,
+              'PLOT_REFLECTIONS'   : True,
+              'PLOT_PHYSICS'       : True,
+             }
+
+    kwargs.update(cfdpars) # may need it if do waveform reconstruction from xtc data
+
+    kwargs.update(plotpars)
+
+    py_sort(**kwargs)
+
+    sys.exit('End of %s' % sys.argv[0])
 
 #------------------------------

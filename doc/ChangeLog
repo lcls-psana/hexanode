@@ -11,6 +11,10 @@ Package author: Mikhail S. Dubrovin
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V01-00-05
+2017-11-20 Mikhail S. Dubrovin
+- rename examples for hexanode to 7,8,9, pass parameters through **kwargs
+
 Tag: V01-00-04
 2017-11-10 Mikhail S. Dubrovin
 - add examples for hexanode data processing
