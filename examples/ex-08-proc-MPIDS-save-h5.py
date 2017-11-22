@@ -14,8 +14,9 @@ from pyimgalgos.GlobalUtils import print_ndarr, str_tstamp
 #------------------------------
 
 def usage():
-    return 'Use command:           mpirun -n 8 python hexanode/examples/ex-08-proc-MPIDS-save-h5.py\n'\
-           'or: bsub -o log-mpi-n8 mpirun -n 8 python hexanode/examples/ex-08-proc-MPIDS-save-h5.py'
+    return 'Use command: mpirun -n 8 python hexanode/examples/ex-08-proc-MPIDS-save-h5.py [number-of-events]\n'\
+           'or:\n'\
+           '   bsub -o log-mpi-n16-%J.log -q psnehq -n 16 mpirun python hexanode/examples/ex-08-proc-MPIDS-save-h5.py [number-of-events]'
 
 #------------------------------
 
@@ -109,15 +110,19 @@ if __name__ == "__main__" :
 
     print 50*'_'
 
+    events = int(sys.argv[1]) if len(sys.argv)>1 else 300000
+
+    # Parameters for initialization of the data source, channels, number of events etc.
     kwargs = {'srcchs'   : {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)},
               'numchs'   : 7,
               'numhits'  : 16,
               'dsname'   : 'exp=xpptut15:run=390:smd',
               'evskip'   : 0,
-              'events'   : 1200,
+              'events'   : events,
               'ofprefix' : './',
              }
 
+    # Parameters of the CFD descriminator for hit time finding algotithm
     cfdpars= {'cfd_base'       :  0.,
               'cfd_thr'        : -0.05,
               'cfd_cfr'        :  0.9,

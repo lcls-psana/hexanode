@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 #------------------------------
-print "Use command: python hexanode/examples/ex-09-sort-graph-data.py"
-#------------------------------
-
-#if len(sys.argv) < 2 : sys.exit("Please provide a dataset name, e.g. exp=xpptut15:run=390\n")
-#if len(sys.argv) > 2 : sys.exit("too many arguments\n")
-
+def usage(): return 'Use command: python hexanode/examples/ex-09-sort-graph-data.py'
 #------------------------------
 
 import os
@@ -19,15 +14,7 @@ from pyimgalgos.GlobalUtils import print_ndarr
 from pyimgalgos.HBins import HBins
 from expmon.HexDataIO import HexDataIO, do_print
 
-#------------------------------
-
 OSQRT3 = 1./sqrt(3.)
-
-#------------------------------
-
-def usage():
-    return 'Use command: python hexanode/examples/ex-09-sort-graph-data.py'
-
 #------------------------------
 
 class Store :
@@ -532,7 +519,7 @@ def py_sort(**kwargs) :
     SRCCHS       = kwargs.get('srcchs', {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
     DSNAME       = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
     EVSKIP       = kwargs.get('evskip', 0)
-    EVENTS       = kwargs.get('events', 300000) + EVSKIP
+    EVENTS       = kwargs.get('events', 1000000) + EVSKIP
     OFPREFIX     = kwargs.get('ofprefix','./figs-hexanode/plot')
     NUM_CHANNELS = kwargs.get('numchs', 7)
     NUM_HITS     = kwargs.get('numhits', 16)
@@ -910,9 +897,10 @@ if __name__ == "__main__" :
               #'dsname'   : 'exp=xpptut15:run=390:smd',
               #'dsname'   : './xpptut15-r0390-e001200-single-node.h5',
               #'dsname'   : './xpptut15-r0390-e001200-n02-mpi.h5',
-              #'dsname'   : './xpptut15-r0390-e300000-n08-mpi.h5',
+              #'dsname'   : './xpptut15-r0390-e300000-n04-mpi.h5',
               #'dsname'   : './xpptut15-r0390-e001200-single-node.h5',
 
+    # Parameters for initialization of the data source, channels, number of events etc.
     kwargs = {'srcchs'   : {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)},
               'numchs'   : 7,
               'numhits'  : 16,
@@ -925,6 +913,7 @@ if __name__ == "__main__" :
               'verbose'  : False,
              }
 
+    # Parameters of the CFD descriminator for hit time finding algotithm
     cfdpars= {'cfd_base'       :  0.,
               'cfd_thr'        : -0.05,
               'cfd_cfr'        :  0.9,
@@ -934,6 +923,7 @@ if __name__ == "__main__" :
               'cfd_ioffsetend' :  1000,
              }
 
+    # On/Off graphics parameters
     plotpars={'PLOT_NHITS'         : True,
               'PLOT_TIME_CH'       : True,
               'PLOT_UVW'           : True,
