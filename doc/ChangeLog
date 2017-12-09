@@ -11,6 +11,12 @@ Package author: Mikhail S. Dubrovin
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V01-00-07
+2017-12-08 Mikhail S. Dubrovin
+- move essential code from examples to expmon/Hex*, update examples
+	modified:   examples/ex-08-proc-MPIDS-save-h5.py
+	modified:   examples/ex-09-sort-graph-data.py
+
 Tag: V01-00-06
 2017-11-22 Mikhail S. Dubrovin
 - add hexanode examples/ex-10-sort-data.py rename and tune ex-08,09
