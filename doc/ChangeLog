@@ -11,6 +11,13 @@ Package author: Mikhail S. Dubrovin
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V01-00-08
+2017-12-15 Mikhail S. Dubrovin
+- minor changes: commented prints, rename proc -> preprod.
+	modified:   examples/ex-08-proc-MPIDS-save-h5.py
+	modified:   pyext/hexanode_ext.pyx
+	modified:   src/__init__.py
+
 Tag: V01-00-07
 2017-12-08 Mikhail S. Dubrovin
 - move essential code from examples to expmon/Hex*, update examples

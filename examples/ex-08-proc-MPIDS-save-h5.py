@@ -6,7 +6,7 @@
 """
 #------------------------------
 import sys
-from expmon.HexDataProc import proc_data
+from expmon.HexDataPreProc import preproc_data
 #------------------------------
 
 def usage():
@@ -42,8 +42,7 @@ if __name__ == "__main__" :
              }
 
     kwargs.update(cfdpars)
-
-    proc_data(**kwargs)
+    preproc_data(**kwargs)
 
     sys.exit('End of %s' % sys.argv[0])
 

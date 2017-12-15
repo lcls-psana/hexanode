@@ -346,13 +346,13 @@ cdef class py_sort_class:
     cdef sort_class* cptr  # holds a C++ instance
 
     def __cinit__(self):
-        print "In py_sort_class.__cinit__"
+        #print "In py_sort_class.__cinit__"
         self.cptr = new sort_class();
         if self.cptr == NULL:
             raise MemoryError('In py_sort_class.__cinit__: Not enough memory.')
 
     def __dealloc__(self):
-        print "In py_sort_class.__dealloc__"
+        #print "In py_sort_class.__dealloc__"
         del self.cptr
 
     @property
