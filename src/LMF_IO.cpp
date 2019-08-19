@@ -11,9 +11,6 @@
 #define CCF_HISTORY_CODE	0x20000000
 
 
-
-
-
 void MyFILE::seek(unsigned __int64 pos)
 {
 	__int32 rval = _fseeki64(file,  pos,SEEK_SET);
@@ -3017,7 +3014,7 @@ void LMF_IO::WriteTDCData(unsigned __int64 timestamp, unsigned __int32 cnt[], do
 	WriteEventHeader(timestamp,cnt);
 
 	__int32 i,j;
-	__int32 ii;
+	__int32 ii=0;
 	if (DAQ_ID_output != DAQ_ID_SIMPLE) {
 		for (i=0;i<number_of_channels_output;++i) {
 			__int32 hits = cnt[i];
