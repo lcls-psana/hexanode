@@ -35,6 +35,7 @@ if __name__ == "__main__" :
               'events'   : 1200,
               'ofprefix' : './figs-hexanode/plot',
               'calibtab' : 'calibration_table_data.txt',
+              'calibcfg' : 'configuration_hex.txt',
               'plot_his' : True,
               'verbose'  : False,
              }
