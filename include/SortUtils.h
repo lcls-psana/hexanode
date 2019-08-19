@@ -221,8 +221,10 @@ bool read_calibration_tables(const char * filename, sort_class * sorter)
 
 //-----------------------------
 
-bool create_calibration_tables(const char * filename, sort_class * sorter) 
+bool create_calibration_tables(const char* filename, sort_class* sorter) 
 {
+        printf("In create_calibration_tables file: %s\n", filename);
+
 	if (!sorter) return false;
 	if (!filename) return false;
 
@@ -238,6 +240,7 @@ bool create_calibration_tables(const char * filename, sort_class * sorter)
 		sorter->sum_walk_calibrator->get_correction_point(x,y,binx,0); // 0 = layer u
 		fprintf(fo,fmt,x,y);
 	}
+
 	number_of_columns = sorter->sum_walk_calibrator->sumv_profile->number_of_columns;
 	fprintf(fo,"\n\n%i  	// number of sum calibration points for layer V\n",number_of_columns);
 	for (int binx=0; binx < number_of_columns; ++binx) {
@@ -245,7 +248,10 @@ bool create_calibration_tables(const char * filename, sort_class * sorter)
 		sorter->sum_walk_calibrator->get_correction_point(x,y,binx,1); // 1 = layer v
 		fprintf(fo,fmt,x,y);
 	}
-	number_of_columns = sorter->sum_walk_calibrator->sumw_profile->number_of_columns;
+
+
+	number_of_columns = (sorter->use_HEX) ? sorter->sum_walk_calibrator->sumw_profile->number_of_columns : 0;
+
 	fprintf(fo,"\n\n%i  	// number of sum calibration points for layer W (only needed for HEX-detectors)\n",number_of_columns);
 	if (sorter->use_HEX) {
 		for (int binx=0; binx < number_of_columns; ++binx) {
@@ -255,21 +261,25 @@ bool create_calibration_tables(const char * filename, sort_class * sorter)
 		}
 	}
 
-	number_of_columns = sorter->pos_walk_calibrator->number_of_columns;
+
+	//number_of_columns = sorter->pos_walk_calibrator->number_of_columns;
+	number_of_columns = (sorter->use_HEX) ? sorter->pos_walk_calibrator->number_of_columns : 0;
+
 	fprintf(fo,"\n\n%i  	// number of pos-calibration points for layer U\n",number_of_columns);
 	for (int binx=0; binx < number_of_columns; ++binx) {
 		double x,y;
 		sorter->pos_walk_calibrator->get_correction_point(x,y,binx,0); // 0 = layer u
 		fprintf(fo,fmt,x,y);
 	}
-	number_of_columns = sorter->pos_walk_calibrator->number_of_columns;
+
+
 	fprintf(fo,"\n\n%i  	// number of pos-calibration points for layer V\n",number_of_columns);
 	for (int binx=0; binx < number_of_columns; ++binx) {
 		double x,y;
 		sorter->pos_walk_calibrator->get_correction_point(x,y,binx,1); // 1 = layer v
 		fprintf(fo,fmt,x,y);
 	}
-	number_of_columns = sorter->pos_walk_calibrator->number_of_columns;
+
 	fprintf(fo,"\n\n%i  	// number of pos-calibration points for layer W (only needed for HEX-detectors)\n",number_of_columns);
 	if (sorter->use_HEX) {
 		for (int binx=0; binx < number_of_columns; ++binx) {
