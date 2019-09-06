@@ -11,6 +11,10 @@ Package author: Mikhail S. Dubrovin
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V01-00-10
+2019-09-06 Mikhail S. Dubrovin
+- works with updated resort64c library, update examples
+
 Tag: V01-00-08
 2017-12-15 Mikhail S. Dubrovin
 - minor changes: commented prints, rename proc -> preprod.

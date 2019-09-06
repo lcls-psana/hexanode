@@ -34,3 +34,8 @@ Import('*')
 # and provides the lib Resort64c_x64. No other package should try to use it
 # directly.
 standardSConscript(PYEXTMOD="hexanode_ext", LIBS="Resort64c_x64")
+#standardSConscript(PYEXTMOD="hexanode_ext",\
+#  CCFLAGS="-I/reg/common/package/hexanodelib/0.0.1/x86_64-centos7-gcc485/",\
+#  LIBPATH="/reg/common/package/hexanodelib/0.0.1/x86_64-centos7-gcc485",\
+#  LIBS="Resort64c_x64"
+#)

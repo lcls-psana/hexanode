@@ -31,11 +31,11 @@
 100.  	// runtime layer v (in nanosecods) 0 means: same as u	(Parameter 1119)
 0.  	// runtime layer w (in nanosecods) 0 means: same as u	(Parameter 1120)
 
-43.  	// radius of active MCP area (in millimeters) (always a bit larger than the real radius)  (Parameter 1111)
+40.  	// radius of active MCP area (in millimeters) (always a bit larger than the real radius)  (Parameter 1111)
 20.  	// deadtime of signals from the anode			(Parameter 1121)
 20.  	// deadtime of signals from the mcp			(Parameter 1122)
 
-0  	// use position dependend correction of time sums?   0=no 1=yes	(Parameter 1124)
-0  	// use position dependend NL-correction of position? 0=no 1=yes	(Parameter 1125)
+1  	// use position dependend correction of time sums?   0=no 1=yes	(Parameter 1124)
+0  	// use position dependend NL-correction of position? 0=no 1=yes	(Parameter 1125) HEX ONLY
 
 88888	// check value for reading this file. Must be 88888

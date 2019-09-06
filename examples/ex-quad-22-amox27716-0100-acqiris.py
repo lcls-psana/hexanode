@@ -2,6 +2,7 @@
 #--------------------
 
 import sys
+from time import time
 import psana
 import numpy as np
 from Detector.WFDetector import WFDetector
@@ -11,7 +12,13 @@ import pyimgalgos.GlobalGraphics as gg
 import pyimgalgos.GlobalUtils    as gu
 
 from pypsalg import find_edges
-from time import time
+
+from psalgos.pypsalgos import local_maxima_1d, local_minima_1d
+
+from scipy.ndimage.filters import gaussian_filter1d
+
+#from scipy.signal import savgol_filter
+#        wfsmo = savgol_filter(wfsel, wfsel.size-1, 3)
 
 #------------------------------
 
@@ -24,8 +31,8 @@ LEADINGEDGE = True # False # True
 BBAV=1000
 BEAV=2000
 
-#TIME_RANGE=(0.000003,0.000005)
-TIME_RANGE=(0.0000000,0.0000111)
+TIME_RANGE=(0.00000265,0.00000285)
+#TIME_RANGE=(0.0000000,0.0000111)
 
 BBEG=6000
 BEND=22000 # 44000-2
@@ -54,16 +61,60 @@ print 'Example for\n  dataset: %s\n  source1 : %s\n  source2 : %s' % (dsname, sr
 #psana.setOption('psana.calib-dir', './calib')
 #psana.setOption('psana.calib-dir', './empty/calib')
 
+
+def wf_extremas(ax, wf, wt, rank=10) :
+    sh = wf.shape
+    #mask = np.ones(sh, dtype=np.uint16).flatten()
+    mask_min = np.array(wf<THR, dtype=np.uint16)
+    #mask_max = np.array(wf>-THR, dtype=np.uint16)
+    extrema = np.zeros(sh, dtype=np.uint16)
+    t0_sec = time()
+    #nmax = local_maxima_1d(wf, mask_max, rank, extrema)
+    nmin = local_minima_1d(wf, mask_min, rank, extrema)
+    print '  consumed time = %10.6f(sec)  nmin = %d' % (time()-t0_sec, nmin)
+    #print '  consumed time = %10.6f(sec)  nmin = %d  nmax = %d' % (time()-t0_sec, nmin, nmax)
+
+    inds = np.where(extrema>1)
+    amps = wf[inds]
+    inds = inds[0]
+
+    #print 'inds:', inds
+    #print 'amps:', amps
+
+    return np.array(zip(amps,inds))
+    #return np.hstack((amps,inds))
+
 #------------------------------
 
 def draw_times(ax, wf, wt) :
+
+    #extrema = 0.1* wf_extremas(ax, wf, wt, rank=10)        
+    #gg.drawLine(ax, wt, extrema, s=10, linewidth=1, color='k')
+    #return
+
     #wf -= wf[0:1000].mean()
-    t0_sec = time()
-    edges = find_edges(wf, BASE, THR, CFR, DEADTIME, LEADINGEDGE)
-    print '  consumed time = %10.6f(sec)' % (time()-t0_sec)
+    #edges = find_edges(wf, BASE, THR, CFR, DEADTIME, LEADINGEDGE)
+
+    edges = wf_extremas(ax, wf, wt, rank=10)
     # pairs of (amplitude,sampleNumber)
-    print ' nhits:', edges.shape[0]
-    #print ' edges:', edges
+    print ' nhits:', edges.shape[0],
+    print ' edges:', edges
+
+    for (amp,ind) in edges :
+        x0 = wt[int(ind)]
+        xarr = (x0,x0)
+        yarr = (amp,-amp)
+        gg.drawLine(ax, xarr, yarr, s=10, linewidth=1, color='k')
+
+#------------------------------
+
+def draw_times_old(ax, wf, wt) :
+
+    #wf -= wf[0:1000].mean()
+    edges = find_edges(wf, BASE, THR, CFR, DEADTIME, LEADINGEDGE)
+    # pairs of (amplitude,sampleNumber)
+    print ' nhits:', edges.shape[0],
+    print ' edges:', edges
 
     for (amp,ind) in edges :
         x0 = wt[int(ind)]
@@ -141,8 +192,21 @@ for n,evt in enumerate(ds.events()) :
 
         print '  == ch:', ch[i],
 
+        wfsmo = gaussian_filter1d(wfsel, 4)
+        #wfsmo = gaussian_filter1d(wfsmo, 3)
+        #wfsmo = gaussian_filter1d(wfsmo, 4)
+
+        grad1 = 100*np.gradient(wfsmo, edge_order=2)
+        grad2 = 10*np.gradient(grad1, edge_order=2)
+
+
         ax[i].plot(wtsel, wfsel, gfmt[i], linewidth=lw)
-        draw_times(ax[i], wfsel, wtsel)
+        ax[i].plot(wtsel, wfsmo, gfmt[0], linewidth=lw)
+
+        ax[i].plot(wtsel, grad2, gfmt[0], linewidth=lw)
+
+        #draw_times(ax[i], wfsel, wtsel)
+        draw_times(ax[i], wfsmo, wtsel)
         gg.drawLine(ax[i], ax[i].get_xlim(), (THR,THR), s=10, linewidth=1, color='k')
 
     #wf2sel = wf2[ch[i],BBEG:BEND]
